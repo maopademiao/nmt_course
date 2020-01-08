@@ -1,7 +1,7 @@
 # nmt_course
 题目：
 
-  在NiuTensor中实现0-7的数字异或。
+在NiuTensor中实现0-7的数字异或。
   
 
 输入为1*6的tensor,输出为1*8的tensor。其中输入为两个进行异或值的三位二进制数，输出为8位的one-hot向量。
