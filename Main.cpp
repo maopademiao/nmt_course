@@ -7,7 +7,7 @@
 #include "../sample/fnnlm/FNNLM.h"
 #include "../sample/transformer/Transformer.h"
 #include "../sample/regression/FNNReg.h"
-#include "../sample/xor/DIGxor.h"
+#include "../sample/homework/digxor2.h"
 
 //#define CRTDBG_MAP_ALLOC
 //#include <stdlib.h>
@@ -21,7 +21,7 @@ using namespace nts;
 using namespace fnnlm;
 using namespace transformer;
 using namespace fnnreg;
-using namespace digxor;
+using namespace digxor2;
 
 int main(int argc, const char ** argv)
 {
@@ -32,8 +32,10 @@ int main(int argc, const char ** argv)
 		Test();
 	else if (argc > 1 && !strcmp(argv[1], "-fnnlm"))
 		FNNLMMain(argc - 1, argv + 1);
+	else if (argc > 1 && !strcmp(argv[1], "-fnnreg"))
+		FNNRegMain(argc - 1, argv + 1);
 	else if (argc > 1 && !strcmp(argv[1], "-xor"))
-		DIGxorMain(argc - 1, argv + 1);
+		DIGxorMain3(argc - 1, argv + 1);
 	else if (argc > 1 && !strcmp(argv[1], "-t2t"))
 		TransformerMain(argc - 1, argv + 1);
 
