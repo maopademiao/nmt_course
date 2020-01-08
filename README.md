@@ -9,8 +9,8 @@
   
 ## 前向传播：
 
-  h1=w1*x
-  h2=w1*x+b
+  h1=w1*x<br>
+  h2=w1*x+b<br>
   h3=hardtanh(h2)
   output=softmax(h3)
   
