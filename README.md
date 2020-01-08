@@ -16,9 +16,9 @@
   
 ### 前向传播：
 
-  h1=w1*x<br>
-  h2=w1*x+b<br>
-  h3=sigmoid(h2)<br>
+ *  h1=w1*x<br>
+ *  h2=w1*x+b<br>
+ *  h3=sigmoid(h2)<br>
   output=softmax(h3)
   
 ### 反向传播:
