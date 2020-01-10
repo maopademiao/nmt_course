@@ -9,7 +9,7 @@ namespace digxor2
 {
 	/* base parameter */
 	float learningRate = 0.005F;		//learning rate
-	int nEpoch = 150;				//max training epoches
+	int nEpoch = 1500;				//max training epoches
 	float minmax = 0.99F;			// range[-p,p] for parameter initialization
 
 	void Init(DIGxorModel &model);
@@ -83,7 +83,7 @@ namespace digxor2
 		int testDataX[testDataSize][dataSize2_2] = { 0,0,0,0,0,0 };
 		Train(trainDataX2, trainDataY, dataSize1, dataSize2_2, dataSize3, model);
 		//Test(testDataX, testDataSize, model);
-		Test(trainDataX2, dataSize1, model);
+		//Test(trainDataX2, dataSize1, model);
 		return 0;
 	}
 
@@ -91,7 +91,9 @@ namespace digxor2
 	{
 		//printf("init-----\n");
 		InitTensor2D(&model.weight1, 6, model.h_size, X_FLOAT, model.devID);
+		//初始化W为6*8的tensor
 		InitTensor2D(&model.b, 1, model.h_size, X_FLOAT, model.devID);
+		//初始化b为1*8的tensor
 		model.weight1.SetDataRand(-minmax, minmax);
 		//model.weight1.Dump(stderr);
 		model.b.SetZeroAll();
@@ -109,7 +111,7 @@ namespace digxor2
 	void Train(int(*trainDataX)[6], int(*trainDataY)[8], int dataSize, int dataSize2, int dataSize3, DIGxorModel &model)
 	{
 		/*  trainDataX为dataSize*dataSize2的输入数组
-			trainDataY为dataSize*dataSize3的输出数组		
+		trainDataY为dataSize*dataSize3的输出数组
 		*/
 		printf("prepare data for train\n");
 		/* prepare for train */
@@ -135,7 +137,7 @@ namespace digxor2
 
 		for (int epochIndex = 0; epochIndex < nEpoch; ++epochIndex)
 		{
-			printf("epoch %d\n", epochIndex);
+			//printf("epoch %d\n", epochIndex);
 			float totalLoss = 0;
 			//if ((epochIndex + 1) % 50 == 0)
 			//	learningRate /= 3;
@@ -146,12 +148,12 @@ namespace digxor2
 				XTensor *goal = goalList.GetItem(i);
 				//goal->Dump(stderr);
 				Forword(*input, model, net);
-				
+
 				//printf("forward ok\n");
 				//net.output.Dump(stderr);
 				XTensor loss;
 				//printf("begin crossentropy\n");
-				loss = CrossEntropy(net.output, goal, 1);
+				loss = CrossEntropy(net.output, goal, 0);
 				//loss.Dump(stderr);
 				totalLoss += loss.Get1D(0);
 				Backward(*input, *goal, model, grad, net);
@@ -161,7 +163,13 @@ namespace digxor2
 				//break;
 			}
 			//Test(trainDataX, dataSize, model);
-			printf("loss:%f\n", totalLoss / inputList.count);
+			if (epochIndex % 100 == 0)
+			{
+				printf("epoch %d\n", epochIndex);
+				printf("loss:%f\n", totalLoss / inputList.count);
+				Test(trainDataX, dataSize, model);
+			}
+
 			//break;
 		}
 	}
@@ -169,13 +177,13 @@ namespace digxor2
 	void Forword(XTensor &input, DIGxorModel &model, DIGxorNet &net)
 	{
 		/*  h1 = w1x
-			h2 = w1x+b
-			h3 = hardtanh(h2)
-			output = softmax(h3)
-		 */
+		h2 = w1x+b
+		h3 = sigmoid(h2)
+		output = softmax(h3)
+		*/
 		net.hidden_state1 = MatrixMul(input, model.weight1);
 		net.hidden_state2 = net.hidden_state1 + model.b;
-		net.hidden_state3 = HardTanH(net.hidden_state2);
+		net.hidden_state3 = Sigmoid(net.hidden_state2);
 		net.output = Softmax(net.hidden_state3, 1);
 		//printf("\nforward\n");
 		//net.output.Dump(stderr);
@@ -193,10 +201,10 @@ namespace digxor2
 		XTensor &dedw1 = grad.weight1;
 		//_CrossEntropyBackward(&dedy, &net.output, &goal, &dedw1);
 		/* dedy = dE/dout, dedx = dE/dh3 */
-		_SoftmaxBackward(&goal, &out, &h3, &dedy, &dedx, NULL, 1, CROSSENTROPY); 
+		_SoftmaxBackward(&goal, &out, &h3, &dedy, &dedx, NULL, 1, CROSSENTROPY);
 		/* dedb = dedx * dh3 / dh2 */
-		_HardTanHBackward(&net.hidden_state3, &net.hidden_state2, &dedx, &dedb);
-		//_SigmoidBackward(&net.hidden_state3, &net.hidden_state2, &dedx, &dedb);
+		//_HardTanHBackward(&net.hidden_state3, &net.hidden_state2, &dedx, &dedb);
+		_SigmoidBackward(&net.hidden_state3, &net.hidden_state2, &dedx, &dedb);
 		dedw1 = MatrixMul(input, X_TRANS, dedb, X_NOTRANS);
 	}
 
@@ -246,6 +254,6 @@ namespace digxor2
 			}
 			if (pos == (t1[i] ^ t2[i])) right++;
 		}
-		printf("\nright:%d\n", right);
+		printf("right:%d\n", right);
 	}
 }
