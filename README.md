@@ -33,7 +33,7 @@
 
   损失函数使用交叉熵函数计算loss.<br>
   * dE/dw1 = dE/doutput * doutput/dh3 * dh3/dh2 * dh2/dw1<br>
-  * dW/db = dE/doutput * doutput/dh3 * dh3/dh2 * dh2/db
+  * dE/db = dE/doutput * doutput/dh3 * dh3/dh2 * dh2/db
   
 ### 参数更新：
 
